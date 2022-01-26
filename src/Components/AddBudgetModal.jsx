@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import _ from "lodash";
 import { BudgetContext } from "../App";
 import HighlightOffRoundedIcon from "@material-ui/icons/HighlightOffRounded";
 
@@ -6,10 +7,23 @@ export default function AddBudgetModal() {
   const { handleAddBudget, setOpenAddBudgetModal } = useContext(BudgetContext);
 
   const [values, setValues] = useState({});
+  const [errors, setErrors] = useState({ title: "", spend: "" });
 
   const handleChange = e => {
     let { name, value } = e.target;
-    if (name === "spend") value = parseInt(value);
+    if (value === "" || value == 0)
+      setErrors({
+        ...errors,
+        [name]: `${name} dose not ellowed to be empty!`,
+      });
+    else {
+      const clonedErrors = { ...errors };
+      delete clonedErrors[name];
+      setErrors(clonedErrors);
+    }
+
+    if (name === "spend" && value) value = parseInt(value);
+
     setValues({
       ...values,
       [name]: value,
@@ -17,10 +31,15 @@ export default function AddBudgetModal() {
   };
 
   const handleSubmit = e => {
-    e.preventDefault();
-    handleAddBudget(values);
-    setOpenAddBudgetModal(false);
+    if (_.isEmpty(errors)) {
+      e.preventDefault();
+      handleAddBudget(values);
+      setOpenAddBudgetModal(false);
+    }
   };
+
+  let classname =
+    "rounded-lg border-transparent my-1 flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none";
 
   return (
     <div className="absolute z-10 w-screen h-screen -mt-[88px] bg-black bg-opacity-50">
@@ -43,27 +62,53 @@ export default function AddBudgetModal() {
           <div className="mt-6">
             <div className="w-full space-y-6">
               <div className="w-full">
+                <label htmlFor="title" className="text-gray-600">
+                  Title
+                  {errors.title && (
+                    <span className="text-red-500 ml-1 required-dot">*</span>
+                  )}{" "}
+                </label>
                 <input
                   autoFocus
                   value={values.title}
                   onChange={handleChange}
                   type="text"
                   id="title"
+                  placeholder="Budget Title ..."
                   name="title"
-                  className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                  placeholder="Title ..."
+                  className={
+                    errors.title
+                      ? `${classname} focus:none border-red-500`
+                      : `${classname} focus:ring-purple-600 focus:ring-2 focus:border-transparent`
+                  }
                 />
+                {errors.title && (
+                  <p className="text-sm text-red-500">{errors.title}</p>
+                )}
               </div>
               <div className="w-full">
+                <label htmlFor="spend" className="text-gray-600">
+                  Spend
+                  {errors.spend && (
+                    <span className="text-red-500 ml-1 required-dot">*</span>
+                  )}
+                </label>
                 <input
                   value={values.spend}
                   onChange={handleChange}
                   type="number"
                   id="spend"
-                  name="spend"
-                  className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                   placeholder="Max Spend ..."
+                  name="spend"
+                  className={
+                    errors.spend
+                      ? `${classname} focus:none border-red-500`
+                      : `${classname} focus:ring-purple-600 focus:ring-2 focus:border-transparent`
+                  }
                 />
+                {errors.spend && (
+                  <p className="text-sm text-red-500">{errors.spend}</p>
+                )}
               </div>
               <div>
                 <span className="block w-full rounded-md shadow-sm">

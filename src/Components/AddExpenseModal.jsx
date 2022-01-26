@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import _ from "lodash";
 import { BudgetContext } from "../App";
 import HighlightOffRoundedIcon from "@material-ui/icons/HighlightOffRounded";
 
@@ -7,10 +8,23 @@ export default function AddExpenseModal({ budget }) {
     useContext(BudgetContext);
 
   const [values, setValues] = useState({});
+  const [errors, setErrors] = useState({ description: "", expense: "" });
 
   const handleChange = e => {
     let { name, value } = e.target;
-    if (name === "expense") value = parseInt(value);
+    if (value === "" || value == 0)
+      setErrors({
+        ...errors,
+        [name]: `${name} dose not ellowed to be empty!`,
+      });
+    else {
+      const clonedErrors = { ...errors };
+      delete clonedErrors[name];
+      setErrors(clonedErrors);
+    }
+
+    if (name === "expense" && value) value = parseInt(value);
+
     setValues({
       ...values,
       [name]: value,
@@ -18,10 +32,15 @@ export default function AddExpenseModal({ budget }) {
   };
 
   const handleSubmit = e => {
-    e.preventDefault();
-    handleAddExpense(values, budget);
-    setOpenAddExpenseModal(false);
+    if (_.isEmpty(errors)) {
+      e.preventDefault();
+      handleAddExpense(values, budget);
+      setOpenAddExpenseModal(false);
+    }
   };
+
+  let classname =
+    "rounded-lg border-transparent my-1 flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none";
 
   return (
     <div className="absolute z-10 w-screen h-screen -mt-[88px] bg-black bg-opacity-50">
@@ -44,6 +63,12 @@ export default function AddExpenseModal({ budget }) {
           <div className="mt-6">
             <div className="w-full space-y-6">
               <div className="w-full">
+                <label htmlFor="description" className="text-gray-600">
+                  Description
+                  {errors.description && (
+                    <span className="text-red-500 ml-1 required-dot">*</span>
+                  )}
+                </label>
                 <input
                   autoFocus
                   value={values.description}
@@ -51,26 +76,45 @@ export default function AddExpenseModal({ budget }) {
                   type="text"
                   id="description"
                   name="description"
-                  className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
-                  placeholder="Description ..."
+                  className={
+                    errors.description
+                      ? `${classname} focus:none border-red-500`
+                      : `${classname} focus:ring-purple-600 focus:ring-2 focus:border-transparent`
+                  }
+                  placeholder="New Description ..."
                 />
+                {errors.description && (
+                  <p className="text-sm text-red-500">{errors.description}</p>
+                )}
               </div>
               <div className="w-full">
+                <label htmlFor="description" className="text-gray-600">
+                  Expense
+                  {errors.expense && (
+                    <span className="text-red-500 ml-1 required-dot">*</span>
+                  )}{" "}
+                </label>
                 <input
                   value={values.expense}
                   onChange={handleChange}
                   type="number"
                   id="expense"
                   name="expense"
-                  className=" rounded-lg border-transparent flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                  className={
+                    errors.expense
+                      ? `${classname} focus:none border-red-500`
+                      : `${classname} focus:ring-purple-600 focus:ring-2 focus:border-transparent`
+                  }
                   placeholder="Expense Amount ..."
                 />
+                {errors.expense && (
+                  <p className="text-sm text-red-500">{errors.expense}</p>
+                )}
               </div>
               <div className="w-full">
                 <input
                   disabled
                   value={budget.title}
-                  // onChange={handleChange}
                   type="text"
                   id="budget"
                   name="budget"

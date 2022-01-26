@@ -93,7 +93,7 @@ export default function App() {
             <Budget key={budget.id} {...{ budget }} />
           ))}
         </div>
-        <div className="mt-20">{budgets && <Total />}</div>
+        <div className="my-20">{budgets && <Total />}</div>
       </div>
     </BudgetContext.Provider>
   );

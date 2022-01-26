@@ -1,10 +1,12 @@
+import _ from "lodash";
+
 export default function dependences(budgets, budget) {
   let percent = 0;
-  let totalExpenses;
-  let totalSpend;
-  let sum;
+  let totalExpenses = 0;
+  let totalSpend = 0;
+  let sum = 0;
   const total = [];
-  if (budgets) {
+  if (!_.isEmpty(budgets)) {
     budgets.forEach(budget => {
       total.push(budget.expenses.reduce((a, c) => a + c.expense, 0));
     });
@@ -14,7 +16,7 @@ export default function dependences(budgets, budget) {
     percent = Math.ceil((totalExpenses / totalSpend) * 100);
   }
 
-  if (budget.expenses) {
+  if (!_.isEmpty(budget.expenses)) {
     sum = budget.expenses.reduce((a, c) => a + c.expense, 0);
     percent = Math.ceil((sum / budget.spend) * 100);
   }
