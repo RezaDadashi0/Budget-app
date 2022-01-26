@@ -1,12 +1,21 @@
-import React, { useContext } from "react";
+import React, { useState, useContext } from "react";
 import { BudgetContext } from "../App";
 import BlurOnIcon from "@material-ui/icons/BlurOn";
 import DeleteForeverRoundedIcon from "@material-ui/icons/DeleteForeverRounded";
 import HighlightOffRoundedIcon from "@material-ui/icons/HighlightOffRounded";
+import Pagination from "./pagination";
+import paginate from "../utils/paginate";
 
 export default function ViewExpensesModal({ budget }) {
   const { setOpenViewExpensesModal, budgets, setBudgets } =
     useContext(BudgetContext);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(4);
+
+  const handlePagination = pageNumber => {
+    setCurrentPage(pageNumber);
+  };
 
   const handleExpensesDelete = expenseID => {
     const expensesChange = budget.expenses.filter(
@@ -23,6 +32,8 @@ export default function ViewExpensesModal({ budget }) {
     setBudgets(budgets.filter(b => b.id !== budgetID));
     setOpenViewExpensesModal(false);
   };
+
+  const budgetExpenses = paginate(budget.expenses, pageSize, currentPage);
 
   return (
     <div className="absolute z-10 w-screen h-screen -mt-[88px] bg-black bg-opacity-50">
@@ -49,7 +60,7 @@ export default function ViewExpensesModal({ budget }) {
         {/* //////////////////// Budget.spenses //////////////////// */}
 
         <ul className="flex flex-col divide divide-y">
-          {budget.expenses.map(expense => (
+          {budgetExpenses.map(expense => (
             <li className="flex items-center p-3" key={expense.id}>
               <BlurOnIcon />
               <div className="font-medium flex-1 ml-2">
@@ -68,6 +79,13 @@ export default function ViewExpensesModal({ budget }) {
             </li>
           ))}
         </ul>
+
+        <Pagination
+          onClick={handlePagination}
+          length={budget.expenses.length}
+          pageSize={pageSize}
+          currentPage={currentPage}
+        />
 
         <div className="px-3 py-6">
           <button
